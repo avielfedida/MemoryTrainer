@@ -17,7 +17,7 @@ MENUS = {
     STTS.TERMS_MANAGER:
         """
         1) New/Edit
-        2) Search/Delete
+        2) Search/Edit/Delete
 
         Esc to return
         """

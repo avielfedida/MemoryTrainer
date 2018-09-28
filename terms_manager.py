@@ -85,7 +85,7 @@ class TermsManager:
         os.system('cls')
         if len(msg) > 0:
             ColorUtil.red(msg)
-        print('Type(ESC to return, Del to delete): {}'.format(search_for))
+        print('Type(ESC to return, Enter to edit, Del to delete): {}'.format(search_for))
         search_results = []
         if len(search_for) > 0:
             print('\n--------------Results--------------\n')
@@ -118,6 +118,10 @@ class TermsManager:
             return TermsManager.search(db, global_category, search_for=search_for, msg=err_msg)
         elif c == KEYS.ESC:
             return STTS.TERMS_MANAGER
+        elif c == KEYS.ENTER:
+            if search_results is not None and len(search_results) == 0:
+                return TermsManager.search(db, global_category, search_for=search_for, msg='Nothing to edit')
+            return TermsManager.new_edit_term(db, global_category, term_object=db.get_term(global_category, search_results[idx]))
         else:
             return TermsManager.search(db, global_category, search_for=search_for + c)
 

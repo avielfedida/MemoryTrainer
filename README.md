@@ -26,7 +26,7 @@ With that said, it's a simple use-case for this application, there are plenty mo
     1. shown a word, one after the other, no answer is shown.
     2. if decide to stop or a limit you configure reaches
     3. you see all the answers for all the terms you didn't remembered
- - Statistics: every time you exit the software it record you current learning state, choosing the statistics options you can see a simple 2D graph of you learning progress, it accumulates all you statistics updates per day, as days goes by you can see if you get better or maybe you add more terms then you study them.
+ - Statistics: every time you exit the software it record you current learning state, choosing the statistics options you can see a simple 2D graph of you learning progress, it accumulates all statistics updates per day, as days goes by you can see if you get better or maybe you add more terms than you study them.
  - Categories and Modes switching: when you hit study you get terms under certain category you decide, as a default, the category with most terms is choosed when the application starts, you can switch category, and you can switch mode.
 
 

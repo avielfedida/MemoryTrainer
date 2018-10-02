@@ -12,6 +12,11 @@ With that said, it's a simple use-case for this application, there are plenty mo
 ## Technicals
  - Sql3 as a database
 
+
+## Controls
+ - Y/N questions are answered throught right/left accordinly, instead of left ESC can be used.
+ - The most important thing is to read the instructions, they are there to make the usage as fluent as possible.
+
 ## Required packages
 - matplotlib
 

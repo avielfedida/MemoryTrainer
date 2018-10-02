@@ -23,6 +23,9 @@ class TermsManager:
             ------------
             """).format(term_object.get('category'), term_object.get('term'), term_object.get('answer')))
 
+            if not ynq('Continue to edit?'):
+                return STTS.TERMS_MANAGER
+
         default_category = global_category if term_object is None else term_object.get('category')
         categories = db.get_categories_list()
         if len(categories) > 0:
@@ -73,7 +76,7 @@ class TermsManager:
             q = ynq('Would you like to reset {}@{} stats?'.format(term, category))
             if change:
                 update_succeeded = db.update_term(term_object.get('rowid'), category,
-                                                         term, answer, reset_stats=q)
+                                                  term, answer, reset_stats=q)
                 if not update_succeeded:
                     print('Update failed, please check logs')
                     enter_pause('Press ENTER to continue')
@@ -121,7 +124,8 @@ class TermsManager:
         elif c == KEYS.ENTER:
             if search_results is not None and len(search_results) == 0:
                 return TermsManager.search(db, global_category, search_for=search_for, msg='Nothing to edit')
-            return TermsManager.new_edit_term(db, global_category, term_object=db.get_term(global_category, search_results[idx]))
+            return TermsManager.new_edit_term(db, global_category,
+                                              term_object=db.get_term(global_category, search_results[idx]))
         else:
             return TermsManager.search(db, global_category, search_for=search_for + c)
 

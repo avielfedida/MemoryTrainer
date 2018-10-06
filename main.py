@@ -13,7 +13,6 @@ from states import STTS
 class Main:
     @staticmethod
     def esc(db):
-        # Insert Total weights / number of terms
         db.statistic_tick()
         exit()
 
@@ -31,12 +30,12 @@ class Main:
         x_dates = []
         y_stats = []
         for o in reversed_data:
-            x_dates.append(o[1])
-            y_stats.append(o[0])
+            y_stats.append(o.get('knowledge_rate_percentage'))
+            x_dates.append(o.get('date'))
         plt.plot(x_dates, y_stats)
         plt.xticks(rotation=90)
         plt.xlabel('Date')
-        plt.ylabel('Learning')
+        plt.ylabel('Knowledge in %')
         plt.title('Statistics')
         plt.show()
         return STTS.MAIN

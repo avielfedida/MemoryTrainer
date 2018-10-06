@@ -1,4 +1,5 @@
 import sqlite3
+import time
 from collections import defaultdict
 from itertools import groupby
 
@@ -26,11 +27,19 @@ class DbManager:
         return sqlite3.connect("trainer.db")
 
     def get_stats(self, days):
-        return self.conn.cursor().execute(
+        res = self.conn.cursor().execute(
             """
-            SELECT SUM((CAST(sum_of_appeared AS FLOAT) / sum_of_wrongs) / num_of_terms) / COUNT(rowid) AS state, strftime('%d/%m', for_date) as date FROM Statistics GROUP BY date ORDER BY for_date DESC LIMIT ?
+            SELECT (CAST(sum_of_wrongs AS FLOAT) / sum_of_appeared) AS wrong_rate_day_sum, strftime('%d/%m', for_date) as date FROM Statistics ORDER BY for_date DESC LIMIT ?
+
             """,
             (days,)).fetchall()
+        if len(res) > 0:
+            ret = []
+            for obj in res:
+                wrong_rate = obj[0]
+                ret.append({'date': obj[1], 'knowledge_rate_percentage': (1-wrong_rate) * 100})
+            return ret
+        return []
 
     def search_term(self, search_term, category):
         search_term = str.lower(search_term)
@@ -40,6 +49,15 @@ class DbManager:
             SELECT term FROM Terms WHERE term LIKE ? AND category = ?
             """,
             ('%' + search_term + '%', category,)).fetchall()
+
+    @staticmethod
+    def new_tick(conn, appeared_sum, wrong_sum, terms_count):
+        with conn:
+            c = conn.cursor()
+            c.execute("""
+            INSERT INTO Statistics (sum_of_appeared, sum_of_wrongs, num_of_terms, for_date) VALUES 
+            (?, ?, ?, datetime('now', 'localtime'))
+            """, (appeared_sum, wrong_sum, terms_count))
 
     def statistic_tick(self):
         # First fetch data
@@ -51,12 +69,25 @@ class DbManager:
             appeared_sum, wrong_sum, terms_count = data[0], data[1], data[2]
             if terms_count == 0:
                 return
-            with self.conn:
-                c = self.conn.cursor()
-                c.execute("""
-                INSERT INTO Statistics (sum_of_appeared, sum_of_wrongs, num_of_terms, for_date) VALUES 
-                (?, ?, ?, datetime('now', 'localtime'))
-                """, (appeared_sum, wrong_sum, terms_count))
+
+            last_date = self.conn.cursor().execute("""
+            SELECT rowid, strftime('%d/%m/%Y', for_date) as date FROM Statistics ORDER BY for_date DESC LIMIT 1
+            """).fetchone()
+            if last_date is None:
+                DbManager.new_tick(self.conn, appeared_sum, wrong_sum, terms_count)
+                return
+
+            rowid, date = last_date[0], last_date[1]
+            today = time.strftime("%d/%m/%Y")
+            # Tick was already taken place
+            if date == today:
+                with self.conn:
+                    c = self.conn.cursor()
+                    c.execute("""
+                    UPDATE Statistics SET sum_of_appeared = ?, sum_of_wrongs = ?, num_of_terms = ?, for_date = datetime('now', 'localtime') WHERE rowid = ? 
+                    """, (appeared_sum, wrong_sum, terms_count, rowid))
+            else:
+                DbManager.new_tick(self.conn, appeared_sum, wrong_sum, terms_count)
 
     def terms_list(self, search_term, category):
         search_term = str.lower(search_term)

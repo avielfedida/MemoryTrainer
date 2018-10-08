@@ -67,17 +67,23 @@ class Main:
             term_object = Main.fetch_random_terms(db, global_category, self_pace_mode_pool)[0]
             category, term, answer = term_object.get('category'), term_object.get('term'), term_object.get('answer')
             response = ColorUtil.green('The answer is: \n', string_only=True) + answer
-            q = ynq_esc('Remember {}?'.format(ColorUtil.yellow(term, string_only=True)))
-            if q == KEYS.ESC:
+            q = ynq('Term is {}, ESC=Return, Right=Show'.format(ColorUtil.yellow(term, string_only=True)))
+            if q:
+                print(response)
+            else:
                 return STTS.MAIN
-            elif q:
+
+            yn = ynq_esc(
+                '\nDid you remembered?, ESC=Return, Left=No, Right=Yes'.format(ColorUtil.yellow(term, string_only=True)))
+            if yn == KEYS.ESC:
+                return STTS.MAIN
+            elif yn:
                 db.update_appeared(category, term)
             else:
                 db.update_wrong_and_appeared(category, term)
-            print(response)
-            if ynq(ColorUtil.red('\nNext?', string_only=True)):
-                return Main.move_to_study_manager(db, global_mode, global_category, self_pace_mode_pool,
-                                                  speed_mode_limit)
+
+            return Main.move_to_study_manager(db, global_mode, global_category, self_pace_mode_pool,
+                                              speed_mode_limit)
         elif global_mode == MODE_SPEED:
             terms = Main.fetch_random_terms(db, global_category, how_many=speed_mode_limit)
             responses = []

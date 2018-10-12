@@ -60,7 +60,8 @@ def main():
     while True:
         os.system('cls')
         print_current_menu(CATEGORY, MODE, STATE)
-        key = get_digit(to=len(keys_actions.get(STTS.MAIN)), key=True)
+        # The -1 is due to the ESC
+        key = get_digit(to=len(keys_actions.get(STTS.MAIN))-1, key=True)
         STATE = keys_actions.get(STATE).get(key, lambda: print('Some handler failed to return state'))()
 
 
